@@ -1,0 +1,4 @@
+apiVersion: v1
+description: tencent chart for main k8s infrastructure
+name: tencent-infra
+version: 0.1.0

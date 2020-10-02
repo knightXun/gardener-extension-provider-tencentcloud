@@ -1,0 +1,63 @@
+kubernetesVersion: v1.14.0
+regionID: shanghai-cn
+replicas: 1
+
+images:
+  csi-attacher: repository:tag
+  csi-provisioner: repository:tag
+  csi-plugin-alicloud: repository:tag
+  csi-snapshotter: repository:tag
+  csi-snapshot-controller: repository:tag
+  csi-resizer: repository:tag
+
+csiPluginController:
+  snapshotPrefix: ""
+  persistentVolumePrefix: ""
+  podAnnotations: {}
+  podResources:
+    diskPlugin:
+      requests:
+        cpu: 20m
+        memory: 50Mi
+      limits:
+        cpu: 50m
+        memory: 80Mi
+    attacher:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 30m
+        memory: 50Mi
+    provisioner:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 30m
+        memory: 50Mi
+    snapshotter:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 30m
+        memory: 50Mi
+    resizer:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 30m
+        memory: 50Mi
+
+csiSnapshotController:
+  podAnnotations: {}
+  podResources:
+    snapshotController:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 30m
+        memory: 50Mi
