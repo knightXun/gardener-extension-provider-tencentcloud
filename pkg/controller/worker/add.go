@@ -15,7 +15,7 @@
 package worker
 
 import (
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
 	"github.com/gardener/gardener/extensions/pkg/controller/worker"
 
 	machinescheme "github.com/gardener/machine-controller-manager/pkg/client/clientset/versioned/scheme"
@@ -52,7 +52,7 @@ func AddToManagerWithOptions(mgr manager.Manager, opts AddOptions) error {
 		Actuator:          NewActuator(),
 		ControllerOptions: opts.Controller,
 		Predicates:        worker.DefaultPredicates(opts.IgnoreOperationAnnotation),
-		Type:              alicloud.Type,
+		Type:              tencent.Type,
 	})
 }
 

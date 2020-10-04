@@ -23,7 +23,7 @@ package v1alpha1
 import (
 	unsafe "unsafe"
 
-	config "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/config"
+	config "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/config"
 	healthcheckconfig "github.com/gardener/gardener/extensions/pkg/controller/healthcheck/config"
 	healthcheckconfigv1alpha1 "github.com/gardener/gardener/extensions/pkg/controller/healthcheck/config/v1alpha1"
 	v1 "k8s.io/api/core/v1"

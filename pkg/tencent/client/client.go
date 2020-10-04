@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -51,7 +51,7 @@ type storageClient struct {
 
 // NewStorageClientFromSecretRef creates a new Alicloud storage Client using the credentials from <secretRef>.
 func (f *clientFactory) NewStorageClientFromSecretRef(ctx context.Context, client client.Client, secretRef *corev1.SecretReference, region string) (Storage, error) {
-	credentials, err := alicloud.ReadCredentialsFromSecretRef(ctx, client, secretRef)
+	credentials, err := tencent.ReadCredentialsFromSecretRef(ctx, client, secretRef)
 	if err != nil {
 		return nil, err
 	}

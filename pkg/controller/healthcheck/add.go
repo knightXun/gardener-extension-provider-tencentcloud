@@ -15,9 +15,9 @@
 package healthcheck
 
 import (
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
 	"time"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
 
 	genericcontrolplaneactuator "github.com/gardener/gardener/extensions/pkg/controller/controlplane/genericactuator"
 	"github.com/gardener/gardener/extensions/pkg/controller/healthcheck"
@@ -46,7 +46,7 @@ var (
 // HealthChecks are grouped by extension (e.g worker), extension.type (e.g alicloud) and  Health Check Type (e.g SystemComponentsHealthy)
 func RegisterHealthChecks(mgr manager.Manager, opts healthcheck.DefaultAddArgs) error {
 	if err := healthcheck.DefaultRegistration(
-		alicloud.Type,
+		tencent.Type,
 		extensionsv1alpha1.SchemeGroupVersion.WithKind(extensionsv1alpha1.ControlPlaneResource),
 		func() runtime.Object { return &extensionsv1alpha1.ControlPlaneList{} },
 		func() extensionsv1alpha1.Object { return &extensionsv1alpha1.ControlPlane{} },
@@ -56,11 +56,11 @@ func RegisterHealthChecks(mgr manager.Manager, opts healthcheck.DefaultAddArgs) 
 		[]healthcheck.ConditionTypeToHealthCheck{
 			{
 				ConditionType: string(gardencorev1beta1.ShootControlPlaneHealthy),
-				HealthCheck:   general.NewSeedDeploymentHealthChecker(alicloud.CsiPluginController),
+				HealthCheck:   general.NewSeedDeploymentHealthChecker(tencent.CsiPluginController),
 			},
 			{
 				ConditionType: string(gardencorev1beta1.ShootControlPlaneHealthy),
-				HealthCheck:   general.NewSeedDeploymentHealthChecker(alicloud.CloudControllerManagerName),
+				HealthCheck:   general.NewSeedDeploymentHealthChecker(tencent.CloudControllerManagerName),
 			},
 			{
 				ConditionType: string(gardencorev1beta1.ShootSystemComponentsHealthy),
@@ -76,7 +76,7 @@ func RegisterHealthChecks(mgr manager.Manager, opts healthcheck.DefaultAddArgs) 
 	}
 
 	return healthcheck.DefaultRegistration(
-		alicloud.Type,
+		tencent.Type,
 		extensionsv1alpha1.SchemeGroupVersion.WithKind(extensionsv1alpha1.WorkerResource),
 		func() runtime.Object { return &extensionsv1alpha1.WorkerList{} },
 		func() extensionsv1alpha1.Object { return &extensionsv1alpha1.Worker{} },
@@ -90,7 +90,7 @@ func RegisterHealthChecks(mgr manager.Manager, opts healthcheck.DefaultAddArgs) 
 			},
 			{
 				ConditionType: string(gardencorev1beta1.ShootControlPlaneHealthy),
-				HealthCheck:   general.NewSeedDeploymentHealthChecker(alicloud.MachineControllerManagerName),
+				HealthCheck:   general.NewSeedDeploymentHealthChecker(tencent.MachineControllerManagerName),
 			},
 			{
 				ConditionType: string(gardencorev1beta1.ShootEveryNodeReady),

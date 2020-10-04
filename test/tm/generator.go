@@ -20,7 +20,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/v1alpha1"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/v1alpha1"
 
 	"github.com/gardener/gardener/extensions/test/tm/generator"
 	"github.com/pkg/errors"

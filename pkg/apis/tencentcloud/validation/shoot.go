@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"regexp"
 
-	apistencentcloud "github.com/gardener/gardener-extension-provider-tencent/pkg/apis/tencentcloud"
+	apistencentcloud "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
 
 	"github.com/gardener/gardener/pkg/apis/core"
 	"github.com/gardener/gardener/pkg/apis/core/validation"

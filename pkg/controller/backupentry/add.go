@@ -15,7 +15,7 @@
 package backupentry
 
 import (
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
 	"github.com/gardener/gardener/extensions/pkg/controller/backupentry"
 	"github.com/gardener/gardener/extensions/pkg/controller/backupentry/genericactuator"
 
@@ -28,7 +28,7 @@ var (
 	// DefaultAddOptions are the default DefaultAddOptions for AddToManager.
 	DefaultAddOptions = AddOptions{}
 
-	logger = log.Log.WithName("alicloud-backupentry-actuator")
+	logger = log.Log.WithName("tencent-backupentry-actuator")
 )
 
 // AddOptions are options to apply when adding the Alicloud backupentry controller to the manager.
@@ -46,7 +46,7 @@ func AddToManagerWithOptions(mgr manager.Manager, opts AddOptions) error {
 		Actuator:          genericactuator.NewActuator(newActuator(), logger),
 		ControllerOptions: opts.Controller,
 		Predicates:        backupentry.DefaultPredicates(opts.IgnoreOperationAnnotation),
-		Type:              alicloud.Type,
+		Type:              tencent.Type,
 	})
 }
 

@@ -38,20 +38,41 @@ spec:
         image: {{ index .Values.images "alicloud-controller-manager" }}
         imagePullPolicy: IfNotPresent
         command:
-        - /cloud-controller-manager
-        - --kubeconfig=/var/lib/cloud-controller-manager/kubeconfig
-        - --address=0.0.0.0
-        - --allow-untagged-cloud=true
+        - /bin/tencentcloud-cloud-controller-manager
+        - --cloud-provider=tencentcloud
         - --allocate-node-cidrs=true
-        - --cloud-provider=alicloud
-        - --leader-elect=true
         - --cluster-cidr={{ .Values.podNetwork }}
-        - --use-service-account-credentials=false
-        - --v=2
-        - --cloud-config=/etc/kubernetes/cloudprovider/cloudprovider.conf
-        - --cluster-name={{ .Values.clusterName }}
-        - --configure-cloud-routes=false
+        - --configure-cloud-routes=true
+        - --allow-untagged-cloud=true
+        - --node-monitor-period=60s
+        - --route-reconciliation-period=60s
         {{- include "cloud-controller-manager.featureGates" . | trimSuffix "," | indent 8 }}
+        env:
+        - name: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_REGION
+          valueFrom:
+            secretKeyRef:
+              name: tencentcloud-cloud-controller-manager-config
+              key: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_REGION
+        - name: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_SECRET_ID
+          valueFrom:
+            secretKeyRef:
+              name: tencentcloud-cloud-controller-manager-config
+              key: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_SECRET_ID
+        - name: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tencentcloud-cloud-controller-manager-config
+              key: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_SECRET_KEY
+        - name: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_CLUSTER_ROUTE_TABLE
+          valueFrom:
+            secretKeyRef:
+              name: tencentcloud-cloud-controller-manager-config
+              key: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_CLUSTER_ROUTE_TABLE
+        - name: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_VPC_ID
+          valueFrom:
+            secretKeyRef:
+              name: tencentcloud-cloud-controller-manager-config
+              key: TENCENTCLOUD_CLOUD_CONTROLLER_MANAGER_VPC_ID
         ports:
         - containerPort: 10253
           name: metrics

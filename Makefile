@@ -36,9 +36,9 @@ ifeq ($(WEBHOOK_CONFIG_MODE), service)
 endif
 
 REGION                 := eu-central-1
-ACCESS_KEY_ID_FILE     := .kube-secrets/alicloud/access_key_id.secret
-ACCESS_KEY_SECRET_FILE := .kube-secrets/alicloud/access_key_secret.secret
-VPC_ID_FILE            := .kube-secrets/alicloud/vpc_id.secret
+ACCESS_KEY_ID_FILE     := .kube-secrets/tencentcloud/access_key_id.secret
+ACCESS_KEY_SECRET_FILE := .kube-secrets/tencentcloud/access_key_secret.secret
+VPC_ID_FILE            := .kube-secrets/tencentcloud/vpc_id.secret
 
 #########################################
 # Rules for local development scenarios #
@@ -66,7 +66,7 @@ start-validator:
 		./cmd/$(EXTENSION_PREFIX)-$(VALIDATOR_NAME) \
 		--webhook-config-server-host=0.0.0.0 \
 		--webhook-config-server-port=9443 \
-		--webhook-config-cert-dir=./example/validator-alicloud-certs
+		--webhook-config-cert-dir=./example/validator-tencentcloud-certs
 
 #################################################################
 # Rules related to binary build, Docker image build and release #

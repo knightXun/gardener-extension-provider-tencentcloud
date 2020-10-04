@@ -17,7 +17,7 @@ package validation
 import (
 	"fmt"
 
-	apistencentcloud "github.com/gardener/gardener-extension-provider-tencent/pkg/apis/tencentcloud"
+	apistencentcloud "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
 
 	"k8s.io/apimachinery/pkg/util/validation/field"
 )

@@ -18,7 +18,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
 	"github.com/gardener/gardener/extensions/pkg/util"
 
 	"github.com/gardener/gardener/pkg/apis/core"
@@ -45,7 +45,7 @@ func (v *Shoot) Handle(ctx context.Context, req admission.Request) admission.Res
 		return admission.Errored(http.StatusBadRequest, err)
 	}
 
-	if shoot.Spec.Provider.Type != alicloud.Type {
+	if shoot.Spec.Provider.Type != tencent.Type {
 		return admission.Allowed("webhook not responsible for this provider")
 	}
 

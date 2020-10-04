@@ -17,10 +17,10 @@ package worker
 import (
 	"context"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
-	api "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/helper"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/imagevector"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	api "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/helper"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/imagevector"
 	extensionscontroller "github.com/gardener/gardener/extensions/pkg/controller"
 	"github.com/gardener/gardener/extensions/pkg/controller/common"
 	"github.com/gardener/gardener/extensions/pkg/controller/worker"
@@ -48,7 +48,7 @@ func NewActuator() worker.Actuator {
 	return genericactuator.NewActuator(
 		log.Log.WithName("alicloud-worker-actuator"),
 		delegateFactory,
-		alicloud.MachineControllerManagerName,
+		tencent.MachineControllerManagerName,
 		mcmChart,
 		mcmShootChart,
 		imagevector.ImageVector(),

@@ -21,12 +21,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
-	alicloudclient "github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud/client"
-	apisalicloud "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/helper"
-	alicloudv1alpha1 "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/v1alpha1"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/controller/common"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	tencentclient "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent/client"
+	apistencent "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/helper"
+	tencentv1alpha1 "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/v1alpha1"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/controller/common"
 	extensioncontroller "github.com/gardener/gardener/extensions/pkg/controller"
 	commonext "github.com/gardener/gardener/extensions/pkg/controller/common"
 	"github.com/gardener/gardener/extensions/pkg/controller/infrastructure"
@@ -49,7 +49,7 @@ import (
 
 // StatusTypeMeta is the TypeMeta of InfrastructureStatus.
 var StatusTypeMeta = func() metav1.TypeMeta {
-	apiVersion, kind := alicloudv1alpha1.SchemeGroupVersion.WithKind(extensioncontroller.UnsafeGuessKind(&alicloudv1alpha1.InfrastructureStatus{})).ToAPIVersionAndKind()
+	apiVersion, kind := tencentv1alpha1.SchemeGroupVersion.WithKind(extensioncontroller.UnsafeGuessKind(&tencentv1alpha1.InfrastructureStatus{})).ToAPIVersionAndKind()
 	return metav1.TypeMeta{
 		APIVersion: apiVersion,
 		Kind:       kind,
@@ -60,7 +60,7 @@ var StatusTypeMeta = func() metav1.TypeMeta {
 func NewActuator(machineImageOwnerSecretRef *corev1.SecretReference, whitelistedImageIDs []string) infrastructure.Actuator {
 	return NewActuatorWithDeps(
 		log.Log.WithName("infrastructure-actuator"),
-		alicloudclient.NewClientFactory(),
+		tencentclient.NewClientFactory(),
 		terraformer.DefaultFactory(),
 		extensionschartrenderer.DefaultFactory(),
 		DefaultTerraformOps(),
@@ -72,7 +72,7 @@ func NewActuator(machineImageOwnerSecretRef *corev1.SecretReference, whitelisted
 // NewActuatorWithDeps instantiates an actuator with the given dependencies.
 func NewActuatorWithDeps(
 	logger logr.Logger,
-	newClientFactory alicloudclient.ClientFactory,
+	newClientFactory tencentclient.ClientFactory,
 	terraformerFactory terraformer.Factory,
 	chartRendererFactory extensionschartrenderer.Factory,
 	terraformChartOps TerraformChartOps,
@@ -96,8 +96,8 @@ type actuator struct {
 	logger logr.Logger
 	commonext.ChartRendererContext
 
-	alicloudECSClient  alicloudclient.ECS
-	newClientFactory   alicloudclient.ClientFactory
+	tencentECSClient  tencentclient.ECS
+	newClientFactory   tencentclient.ClientFactory
 	terraformerFactory terraformer.Factory
 	terraformChartOps  TerraformChartOps
 
@@ -105,7 +105,7 @@ type actuator struct {
 	whitelistedImageIDs        []string
 }
 
-// InjectAPIReader implements inject.APIReader and instantiates actuator.alicloudECSClient.
+// InjectAPIReader implements inject.APIReader and instantiates actuator.tencentECSClient.
 func (a *actuator) InjectAPIReader(reader client.Reader) error {
 	if a.machineImageOwnerSecretRef != nil {
 		machineImageOwnerSecret := &corev1.Secret{}
@@ -116,23 +116,23 @@ func (a *actuator) InjectAPIReader(reader client.Reader) error {
 		if err != nil {
 			return err
 		}
-		seedCloudProviderCredentials, err := alicloud.ReadSecretCredentials(machineImageOwnerSecret)
+		seedCloudProviderCredentials, err := tencent.ReadSecretCredentials(machineImageOwnerSecret)
 		if err != nil {
 			return err
 		}
-		a.alicloudECSClient, err = a.newClientFactory.NewECSClient("", seedCloudProviderCredentials.AccessKeyID, seedCloudProviderCredentials.AccessKeySecret)
+		a.tencentECSClient, err = a.newClientFactory.NewECSClient("", seedCloudProviderCredentials.AccessKeyID, seedCloudProviderCredentials.AccessKeySecret)
 		return err
 	}
 	return nil
 }
 
-func (a *actuator) getConfigAndCredentialsForInfra(ctx context.Context, infra *extensionsv1alpha1.Infrastructure) (*alicloudv1alpha1.InfrastructureConfig, *alicloud.Credentials, error) {
-	config := &alicloudv1alpha1.InfrastructureConfig{}
+func (a *actuator) getConfigAndCredentialsForInfra(ctx context.Context, infra *extensionsv1alpha1.Infrastructure) (*tencentv1alpha1.InfrastructureConfig, *tencent.Credentials, error) {
+	config := &tencentv1alpha1.InfrastructureConfig{}
 	if _, _, err := a.Decoder().Decode(infra.Spec.ProviderConfig.Raw, nil, config); err != nil {
 		return nil, nil, err
 	}
 
-	credentials, err := alicloud.ReadCredentialsFromSecretRef(ctx, a.Client(), &infra.Spec.SecretRef)
+	credentials, err := tencent.ReadCredentialsFromSecretRef(ctx, a.Client(), &infra.Spec.SecretRef)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -140,11 +140,11 @@ func (a *actuator) getConfigAndCredentialsForInfra(ctx context.Context, infra *e
 	return config, credentials, nil
 }
 
-func (a *actuator) fetchEIPInternetChargeType(vpcClient alicloudclient.VPC, tf terraformer.Terraformer) (string, error) {
+func (a *actuator) fetchEIPInternetChargeType(vpcClient tencentclient.VPC, tf terraformer.Terraformer) (string, error) {
 	stateVariables, err := tf.GetStateOutputVariables(TerraformerOutputKeyVPCID)
 	if err != nil {
 		if apierrors.IsNotFound(err) || terraformer.IsVariablesNotFoundError(err) {
-			return alicloudclient.DefaultInternetChargeType, nil
+			return tencentclient.DefaultInternetChargeType, nil
 		}
 		return "", err
 	}
@@ -156,8 +156,8 @@ func (a *actuator) getInitializerValues(
 	ctx context.Context,
 	tf terraformer.Terraformer,
 	infra *extensionsv1alpha1.Infrastructure,
-	config *alicloudv1alpha1.InfrastructureConfig,
-	credentials *alicloud.Credentials,
+	config *tencentv1alpha1.InfrastructureConfig,
+	credentials *tencent.Credentials,
 ) (*InitializerValues, error) {
 	vpcClient, err := a.newClientFactory.NewVPCClient(infra.Spec.Region, credentials.AccessKeyID, credentials.AccessKeySecret)
 	if err != nil {
@@ -183,9 +183,9 @@ func (a *actuator) getInitializerValues(
 	return a.terraformChartOps.ComputeUseVPCInitializerValues(config, vpcInfo), nil
 }
 
-func (a *actuator) newInitializer(infra *extensionsv1alpha1.Infrastructure, config *alicloudv1alpha1.InfrastructureConfig, values *InitializerValues, stateInitializer terraformer.StateConfigMapInitializer) (terraformer.Initializer, error) {
+func (a *actuator) newInitializer(infra *extensionsv1alpha1.Infrastructure, config *tencentv1alpha1.InfrastructureConfig, values *InitializerValues, stateInitializer terraformer.StateConfigMapInitializer) (terraformer.Initializer, error) {
 	chartValues := a.terraformChartOps.ComputeChartValues(infra, config, values)
-	release, err := a.ChartRenderer().Render(alicloud.InfraChartPath, alicloud.InfraRelease, infra.Namespace, chartValues)
+	release, err := a.ChartRenderer().Render(tencent.InfraChartPath, tencent.InfraRelease, infra.Namespace, chartValues)
 	if err != nil {
 		return nil, err
 	}
@@ -198,11 +198,11 @@ func (a *actuator) newInitializer(infra *extensionsv1alpha1.Infrastructure, conf
 	return a.terraformerFactory.DefaultInitializer(a.Client(), files.Main, files.Variables, files.TFVars, stateInitializer), nil
 }
 
-func (a *actuator) newTerraformer(infra *extensionsv1alpha1.Infrastructure, credentials *alicloud.Credentials) (terraformer.Terraformer, error) {
+func (a *actuator) newTerraformer(infra *extensionsv1alpha1.Infrastructure, credentials *tencent.Credentials) (terraformer.Terraformer, error) {
 	return common.NewTerraformerWithAuth(a.terraformerFactory, a.RESTConfig(), TerraformerPurpose, infra.Namespace, infra.Name, credentials)
 }
 
-func (a *actuator) extractStatus(tf terraformer.Terraformer, infraConfig *alicloudv1alpha1.InfrastructureConfig, machineImages []alicloudv1alpha1.MachineImage) (*alicloudv1alpha1.InfrastructureStatus, error) {
+func (a *actuator) extractStatus(tf terraformer.Terraformer, infraConfig *tencentv1alpha1.InfrastructureConfig, machineImages []tencentv1alpha1.MachineImage) (*tencentv1alpha1.InfrastructureStatus, error) {
 	outputVarKeys := []string{
 		TerraformerOutputKeyVPCID,
 		TerraformerOutputKeyVPCCIDR,
@@ -224,14 +224,14 @@ func (a *actuator) extractStatus(tf terraformer.Terraformer, infraConfig *aliclo
 		return nil, err
 	}
 
-	return &alicloudv1alpha1.InfrastructureStatus{
+	return &tencentv1alpha1.InfrastructureStatus{
 		TypeMeta: StatusTypeMeta,
-		VPC: alicloudv1alpha1.VPCStatus{
+		VPC: tencentv1alpha1.VPCStatus{
 			ID:        vars[TerraformerOutputKeyVPCID],
 			VSwitches: vswitches,
-			SecurityGroups: []alicloudv1alpha1.SecurityGroup{
+			SecurityGroups: []tencentv1alpha1.SecurityGroup{
 				{
-					Purpose: alicloudv1alpha1.PurposeNodes,
+					Purpose: tencentv1alpha1.PurposeNodes,
 					ID:      vars[TerraformerOutputKeySecurityGroupID],
 				},
 			},
@@ -241,18 +241,18 @@ func (a *actuator) extractStatus(tf terraformer.Terraformer, infraConfig *aliclo
 	}, nil
 }
 
-func computeProviderStatusVSwitches(infrastructure *alicloudv1alpha1.InfrastructureConfig, values map[string]string) ([]alicloudv1alpha1.VSwitch, error) {
-	var vswitchesToReturn []alicloudv1alpha1.VSwitch
+func computeProviderStatusVSwitches(infrastructure *tencentv1alpha1.InfrastructureConfig, values map[string]string) ([]tencentv1alpha1.VSwitch, error) {
+	var vswitchesToReturn []tencentv1alpha1.VSwitch
 
 	for key, value := range values {
 		var (
 			prefix  string
-			purpose alicloudv1alpha1.Purpose
+			purpose tencentv1alpha1.Purpose
 		)
 
 		if strings.HasPrefix(key, TerraformerOutputKeyVSwitchNodesPrefix) {
 			prefix = TerraformerOutputKeyVSwitchNodesPrefix
-			purpose = alicloudv1alpha1.PurposeNodes
+			purpose = tencentv1alpha1.PurposeNodes
 		}
 
 		if len(prefix) == 0 {
@@ -263,7 +263,7 @@ func computeProviderStatusVSwitches(infrastructure *alicloudv1alpha1.Infrastruct
 		if err != nil {
 			return nil, err
 		}
-		vswitchesToReturn = append(vswitchesToReturn, alicloudv1alpha1.VSwitch{
+		vswitchesToReturn = append(vswitchesToReturn, tencentv1alpha1.VSwitch{
 			ID:      value,
 			Purpose: purpose,
 			Zone:    infrastructure.Networks.Zones[zoneID].Name,
@@ -276,7 +276,7 @@ func computeProviderStatusVSwitches(infrastructure *alicloudv1alpha1.Infrastruct
 // findMachineImage takes a list of machine images and tries to find the first entry
 // whose name and version matches with the given name and version. If no such entry is
 // found then an error will be returned.
-func findMachineImage(machineImages []alicloudv1alpha1.MachineImage, name, version string) (*alicloudv1alpha1.MachineImage, error) {
+func findMachineImage(machineImages []tencentv1alpha1.MachineImage, name, version string) (*tencentv1alpha1.MachineImage, error) {
 	for _, machineImage := range machineImages {
 		if machineImage.Name == name && machineImage.Version == version {
 			return &machineImage, nil
@@ -285,7 +285,7 @@ func findMachineImage(machineImages []alicloudv1alpha1.MachineImage, name, versi
 	return nil, fmt.Errorf("no machine image name %q in version %q found", name, version)
 }
 
-func appendMachineImage(machineImages []alicloudv1alpha1.MachineImage, machineImage alicloudv1alpha1.MachineImage) []alicloudv1alpha1.MachineImage {
+func appendMachineImage(machineImages []tencentv1alpha1.MachineImage, machineImage tencentv1alpha1.MachineImage) []tencentv1alpha1.MachineImage {
 	if _, err := findMachineImage(machineImages, machineImage.Name, machineImage.Version); err != nil {
 		return append(machineImages, machineImage)
 	}
@@ -306,9 +306,9 @@ func (a *actuator) isWhitelistedImageID(imageID string) bool {
 // shareCustomizedImages checks whether Shoot's Alicloud account has permissions to use the customized images. If it can't
 // access them, these images will be shared with it from Seed's Alicloud account. The list of images that worker use will be
 // returned.
-func (a *actuator) shareCustomizedImages(ctx context.Context, infra *extensionsv1alpha1.Infrastructure, cluster *extensioncontroller.Cluster) ([]alicloudv1alpha1.MachineImage, error) {
+func (a *actuator) shareCustomizedImages(ctx context.Context, infra *extensionsv1alpha1.Infrastructure, cluster *extensioncontroller.Cluster) ([]tencentv1alpha1.MachineImage, error) {
 	var (
-		machineImages []alicloudv1alpha1.MachineImage
+		machineImages []tencentv1alpha1.MachineImage
 	)
 
 	_, shootCloudProviderCredentials, err := a.getConfigAndCredentialsForInfra(ctx, infra)
@@ -341,7 +341,7 @@ func (a *actuator) shareCustomizedImages(ctx context.Context, infra *extensionsv
 		imageID, err := helper.FindImageForRegionFromCloudProfile(cloudProfileConfig, worker.Machine.Image.Name, *worker.Machine.Image.Version, infra.Spec.Region)
 		if err != nil {
 			if providerStatus := infra.Status.ProviderStatus; providerStatus != nil {
-				infrastructureStatus := &apisalicloud.InfrastructureStatus{}
+				infrastructureStatus := &apistencent.InfrastructureStatus{}
 				if _, _, err := a.Decoder().Decode(providerStatus.Raw, nil, infrastructureStatus); err != nil {
 					return nil, errors.Wrapf(err, "could not decode infrastructure status of infrastructure '%s'", kutil.ObjectName(infra))
 				}
@@ -355,7 +355,7 @@ func (a *actuator) shareCustomizedImages(ctx context.Context, infra *extensionsv
 				return nil, err
 			}
 		}
-		machineImages = appendMachineImage(machineImages, alicloudv1alpha1.MachineImage{
+		machineImages = appendMachineImage(machineImages, tencentv1alpha1.MachineImage{
 			Name:    worker.Machine.Image.Name,
 			Version: *worker.Machine.Image.Version,
 			ID:      imageID,
@@ -383,10 +383,10 @@ func (a *actuator) shareCustomizedImages(ctx context.Context, infra *extensionsv
 		if exists {
 			continue
 		}
-		if a.alicloudECSClient == nil {
+		if a.tencentECSClient == nil {
 			return nil, fmt.Errorf("image sharing is not enabled or configured correctly and Alicloud ECS client is not instantiated in Seed. Please contact Gardener administrator")
 		}
-		if err := a.alicloudECSClient.ShareImageToAccount(ctx, infra.Spec.Region, imageID, shootCloudProviderAccountID); err != nil {
+		if err := a.tencentECSClient.ShareImageToAccount(ctx, infra.Spec.Region, imageID, shootCloudProviderAccountID); err != nil {
 			return nil, err
 		}
 	}
@@ -433,7 +433,7 @@ func (a *actuator) reconcile(ctx context.Context, infra *extensionsv1alpha1.Infr
 		return errors.Wrapf(err, "failed to apply the terraform config")
 	}
 
-	var machineImages []alicloudv1alpha1.MachineImage
+	var machineImages []tencentv1alpha1.MachineImage
 	if cluster.Shoot != nil {
 		machineImages, err = a.shareCustomizedImages(ctx, infra, cluster)
 		if err != nil {

@@ -17,9 +17,9 @@ package worker
 import (
 	"context"
 	"fmt"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
 	"path/filepath"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
 	extensionscontroller "github.com/gardener/gardener/extensions/pkg/controller"
 
 	v1beta1constants "github.com/gardener/gardener/pkg/apis/core/v1beta1/constants"
@@ -32,25 +32,25 @@ import (
 
 var (
 	mcmChart = &chart.Chart{
-		Name:   alicloud.MachineControllerManagerName,
-		Path:   filepath.Join(alicloud.InternalChartsPath, alicloud.MachineControllerManagerName, "seed"),
-		Images: []string{alicloud.MachineControllerManagerImageName},
+		Name:   tencent.MachineControllerManagerName,
+		Path:   filepath.Join(tencent.InternalChartsPath, tencent.MachineControllerManagerName, "seed"),
+		Images: []string{tencent.MachineControllerManagerImageName},
 		Objects: []*chart.Object{
-			{Type: &appsv1.Deployment{}, Name: alicloud.MachineControllerManagerName},
-			{Type: &corev1.Service{}, Name: alicloud.MachineControllerManagerName},
-			{Type: &corev1.ServiceAccount{}, Name: alicloud.MachineControllerManagerName},
-			{Type: &corev1.Secret{}, Name: alicloud.MachineControllerManagerName},
-			{Type: extensionscontroller.GetVerticalPodAutoscalerObject(), Name: alicloud.MachineControllerManagerVpaName},
-			{Type: &corev1.ConfigMap{}, Name: alicloud.MachineControllerManagerMonitoringConfigName},
+			{Type: &appsv1.Deployment{}, Name: tencent.MachineControllerManagerName},
+			{Type: &corev1.Service{}, Name: tencent.MachineControllerManagerName},
+			{Type: &corev1.ServiceAccount{}, Name: tencent.MachineControllerManagerName},
+			{Type: &corev1.Secret{}, Name: tencent.MachineControllerManagerName},
+			{Type: extensionscontroller.GetVerticalPodAutoscalerObject(), Name: tencent.MachineControllerManagerVpaName},
+			{Type: &corev1.ConfigMap{}, Name: tencent.MachineControllerManagerMonitoringConfigName},
 		},
 	}
 
 	mcmShootChart = &chart.Chart{
-		Name: alicloud.MachineControllerManagerName,
-		Path: filepath.Join(alicloud.InternalChartsPath, alicloud.MachineControllerManagerName, "shoot"),
+		Name: tencent.MachineControllerManagerName,
+		Path: filepath.Join(tencent.InternalChartsPath, tencent.MachineControllerManagerName, "shoot"),
 		Objects: []*chart.Object{
-			{Type: &rbacv1.ClusterRole{}, Name: fmt.Sprintf("extensions.gardener.cloud:%s:%s", alicloud.Name, alicloud.MachineControllerManagerName)},
-			{Type: &rbacv1.ClusterRoleBinding{}, Name: fmt.Sprintf("extensions.gardener.cloud:%s:%s", alicloud.Name, alicloud.MachineControllerManagerName)},
+			{Type: &rbacv1.ClusterRole{}, Name: fmt.Sprintf("extensions.gardener.cloud:%s:%s", tencent.Name, tencent.MachineControllerManagerName)},
+			{Type: &rbacv1.ClusterRoleBinding{}, Name: fmt.Sprintf("extensions.gardener.cloud:%s:%s", tencent.Name, tencent.MachineControllerManagerName)},
 		},
 	}
 )
@@ -62,7 +62,7 @@ func (w *workerDelegate) GetMachineControllerManagerChartValues(ctx context.Cont
 	}
 
 	return map[string]interface{}{
-		"providerName": alicloud.Name,
+		"providerName": tencent.Name,
 		"namespace": map[string]interface{}{
 			"uid": namespace.UID,
 		},
@@ -74,6 +74,6 @@ func (w *workerDelegate) GetMachineControllerManagerChartValues(ctx context.Cont
 
 func (w *workerDelegate) GetMachineControllerManagerShootChartValues(ctx context.Context) (map[string]interface{}, error) {
 	return map[string]interface{}{
-		"providerName": alicloud.Name,
+		"providerName": tencent.Name,
 	}, nil
 }

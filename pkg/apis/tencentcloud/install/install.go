@@ -15,8 +15,8 @@
 package install
 
 import (
-	"github.com/gardener/gardener-extension-provider-tencent/pkg/apis/tencentcloud"
-	"github.com/gardener/gardener-extension-provider-tencent/pkg/apis/tencentcloud/v1alpha1"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"

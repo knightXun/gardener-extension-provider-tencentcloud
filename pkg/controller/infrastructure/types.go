@@ -15,7 +15,7 @@
 package infrastructure
 
 import (
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/v1alpha1"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/v1alpha1"
 
 	extensionsv1alpha1 "github.com/gardener/gardener/pkg/apis/extensions/v1alpha1"
 )

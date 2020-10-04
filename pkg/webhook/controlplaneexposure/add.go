@@ -15,8 +15,8 @@
 package controlplaneexposure
 
 import (
-	"github.com/gardener/gardener-extension-provider-tencent/pkg/tencent"
-	"github.com/gardener/gardener-extension-provider-tencent/pkg/apis/config"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/config"
 	extensionswebhook "github.com/gardener/gardener/extensions/pkg/webhook"
 	"github.com/gardener/gardener/extensions/pkg/webhook/controlplane"
 	"github.com/gardener/gardener/extensions/pkg/webhook/controlplane/genericmutator"

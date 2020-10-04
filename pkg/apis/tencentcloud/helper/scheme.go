@@ -20,8 +20,8 @@ package helper
 import (
 	"fmt"
 
-	api "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/install"
+	api "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/install"
 	"github.com/gardener/gardener/extensions/pkg/controller"
 	extensionsv1alpha1 "github.com/gardener/gardener/pkg/apis/extensions/v1alpha1"
 	kutil "github.com/gardener/gardener/pkg/utils/kubernetes"

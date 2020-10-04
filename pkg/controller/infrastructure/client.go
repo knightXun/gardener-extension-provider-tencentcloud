@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	alicloudclient "github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud/client"
+	alicloudclient "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent/client"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )

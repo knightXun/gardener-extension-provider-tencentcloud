@@ -15,7 +15,7 @@
 package infrastructure
 
 import (
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
 	"github.com/gardener/gardener/extensions/pkg/controller/infrastructure"
 
 	corev1 "k8s.io/api/core/v1"
@@ -47,7 +47,7 @@ func AddToManagerWithOptions(mgr manager.Manager, options AddOptions) error {
 		Actuator:          NewActuator(options.MachineImageOwnerSecretRef, options.WhitelistedImageIDs),
 		ControllerOptions: options.Controller,
 		Predicates:        infrastructure.DefaultPredicates(options.IgnoreOperationAnnotation),
-		Type:              alicloud.Type,
+		Type:              tencent.Type,
 	})
 }
 

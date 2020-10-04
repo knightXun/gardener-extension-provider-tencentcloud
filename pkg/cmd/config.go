@@ -17,8 +17,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/config"
-	configloader "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/config/loader"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/config"
+	configloader "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/config/loader"
 	healthcheckconfig "github.com/gardener/gardener/extensions/pkg/controller/healthcheck/config"
 
 	"github.com/spf13/pflag"

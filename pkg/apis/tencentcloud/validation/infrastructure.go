@@ -15,8 +15,7 @@
 package validation
 
 import (
-	apisalicloud "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud"
-	apistencentcloud "github.com/gardener/gardener-extension-provider-tencent/pkg/apis/tencentcloud"
+	apistencentcloud "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
 	cidrvalidation "github.com/gardener/gardener/pkg/utils/validation/cidr"
 	apivalidation "k8s.io/apimachinery/pkg/api/validation"
 	"k8s.io/apimachinery/pkg/util/validation/field"
@@ -105,7 +104,7 @@ func ValidateInfrastructureConfigUpdate(oldConfig, newConfig *apistencentcloud.I
 	return allErrs
 }
 
-func ValidateNetworkZonesConfig(newZones, oldZones []apisalicloud.Zone, fldPath *field.Path) field.ErrorList {
+func ValidateNetworkZonesConfig(newZones, oldZones []apistencentcloud.Zone, fldPath *field.Path) field.ErrorList {
 	allErrs := field.ErrorList{}
 
 	if len(newZones) < len(oldZones) {
@@ -127,7 +126,7 @@ func ValidateNetworkZonesConfig(newZones, oldZones []apisalicloud.Zone, fldPath 
 }
 
 // ValidateNatGatewayConfig validates a NatGatewayConfig object.
-func ValidateNatGatewayConfig(natGateway *apisalicloud.NatGatewayConfig, fldPath *field.Path) field.ErrorList {
+func ValidateNatGatewayConfig(natGateway *apistencentcloud.NatGatewayConfig, fldPath *field.Path) field.ErrorList {
 	allErrs := field.ErrorList{}
 
 	if natGateway != nil {

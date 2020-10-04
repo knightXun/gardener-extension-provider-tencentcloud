@@ -18,9 +18,9 @@ import (
 	"context"
 	"fmt"
 
-	provideralicloud "github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
-	alicloudinstall "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/install"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/validator"
+	providertencentcloud "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	tencentcloudinstall "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/install"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/validator"
 
 	controllercmd "github.com/gardener/gardener/extensions/pkg/controller/cmd"
 	"github.com/gardener/gardener/extensions/pkg/util"
@@ -49,7 +49,7 @@ func NewValidatorCommand(ctx context.Context) *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use: fmt.Sprintf("validator-%s", provideralicloud.Type),
+		Use: fmt.Sprintf("validator-%s", providertencentcloud.Type),
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := aggOption.Complete(); err != nil {
@@ -68,7 +68,7 @@ func NewValidatorCommand(ctx context.Context) *cobra.Command {
 
 			install.Install(mgr.GetScheme())
 
-			if err := alicloudinstall.AddToScheme(mgr.GetScheme()); err != nil {
+			if err := tencentcloudinstall.AddToScheme(mgr.GetScheme()); err != nil {
 				controllercmd.LogErrAndExit(err, "Could not update manager scheme")
 			}
 

@@ -25,7 +25,7 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// ControllerConfiguration defines the configuration for the tencent provider.
+// ControllerConfiguration defines the configuration for the tencentcloud provider.
 type ControllerConfiguration struct {
 	metav1.TypeMeta
 

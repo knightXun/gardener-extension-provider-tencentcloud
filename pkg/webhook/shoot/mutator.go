@@ -17,7 +17,7 @@ package shoot
 import (
 	"context"
 
-	webhookutils "github.com/gardener/gardener-extension-provider-alicloud/pkg/webhook/utils"
+	webhookutils "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/webhook/utils"
 	extensionswebhook "github.com/gardener/gardener/extensions/pkg/webhook"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"

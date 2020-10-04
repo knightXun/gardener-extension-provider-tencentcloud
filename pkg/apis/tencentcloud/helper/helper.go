@@ -17,7 +17,7 @@ package helper
 import (
 	"fmt"
 
-	api "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud"
+	api "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
 )
 
 // FindVSwitchForPurposeAndZone takes a list of vswitches and tries to find the first entry

@@ -15,4 +15,4 @@
 // +k8s:deepcopy-gen=package
 // +groupName="tencentcloud.provider.extensions.config.gardener.cloud"
 
-package config // import "github.com/gardener/gardener-extension-provider-tencent/pkg/apis/config"
+package config // import "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/config"

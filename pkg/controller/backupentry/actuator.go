@@ -17,9 +17,8 @@ package backupentry
 import (
 	"context"
 	"fmt"
-
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
-	alicloudclient "github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud/client"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	tencentcloudclient "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent/client"
 	"github.com/gardener/gardener/extensions/pkg/controller/backupentry/genericactuator"
 
 	extensionsv1alpha1 "github.com/gardener/gardener/pkg/apis/extensions/v1alpha1"
@@ -44,12 +43,12 @@ func (a *actuator) InjectClient(client client.Client) error {
 }
 
 func (a *actuator) GetETCDSecretData(ctx context.Context, be *extensionsv1alpha1.BackupEntry, backupSecretData map[string][]byte) (map[string][]byte, error) {
-	backupSecretData[alicloud.StorageEndpoint] = []byte(alicloudclient.ComputeStorageEndpoint(be.Spec.Region))
+	backupSecretData[tencent.StorageEndpoint] = []byte(tencentcloudclient.ComputeStorageEndpoint(be.Spec.Region))
 	return backupSecretData, nil
 }
 
 func (a *actuator) Delete(ctx context.Context, be *extensionsv1alpha1.BackupEntry) error {
-	cli, err := alicloudclient.NewClientFactory().NewStorageClientFromSecretRef(ctx, a.client, &be.Spec.SecretRef, be.Spec.Region)
+	cli, err := tencentcloudclient.NewClientFactory().NewStorageClientFromSecretRef(ctx, a.client, &be.Spec.SecretRef, be.Spec.Region)
 	if err != nil {
 		return err
 	}

@@ -15,7 +15,7 @@
 package backupbucket
 
 import (
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
 	"github.com/gardener/gardener/extensions/pkg/controller/backupbucket"
 
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -42,7 +42,7 @@ func AddToManagerWithOptions(mgr manager.Manager, opts AddOptions) error {
 		Actuator:          newActuator(),
 		ControllerOptions: opts.Controller,
 		Predicates:        backupbucket.DefaultPredicates(opts.IgnoreOperationAnnotation),
-		Type:              alicloud.Type,
+		Type:              tencent.Type,
 	})
 }
 

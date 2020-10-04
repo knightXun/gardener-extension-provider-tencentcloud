@@ -13,8 +13,8 @@
 // limitations under the License.
 
 // +k8s:deepcopy-gen=package
-// +groupName="alicloud.provider.extensions.gardener.cloud"
+// +groupName="tencentcloud.provider.extensions.gardener.cloud"
 
 //go:generate ../../../hack/update-codegen.sh
 
-package tencentcloud // import "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud"
+package tencentcloud // import "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/alicloud"

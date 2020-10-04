@@ -1,4 +1,4 @@
-// Copyright (c) 2020 SAP SE or an SAP affiliate company. All rights reserved. This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file
+// Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved. This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/gardener/gardener-extension-provider-tencent/cmd/gardener-extension-validator-tencent/app"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/cmd/gardener-extension-provider-tencentcloud/app"
 
 	"github.com/gardener/gardener/extensions/pkg/controller"
 	controllercmd "github.com/gardener/gardener/extensions/pkg/controller/cmd"
@@ -25,9 +25,9 @@ import (
 
 func main() {
 	runtimelog.SetLogger(log.ZapLogger(false))
-	cmd := app.NewValidatorCommand(controller.SetupSignalHandlerContext())
+	cmd := app.NewControllerManagerCommand(controller.SetupSignalHandlerContext())
 
 	if err := cmd.Execute(); err != nil {
-		controllercmd.LogErrAndExit(err, "error executing the main command")
+		controllercmd.LogErrAndExit(err, "error executing the main controller command")
 	}
 }

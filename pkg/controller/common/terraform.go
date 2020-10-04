@@ -20,8 +20,8 @@ import (
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/imagevector"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/imagevector"
 
 	"github.com/gardener/gardener/extensions/pkg/terraformer"
 	"github.com/gardener/gardener/pkg/logger"
@@ -60,7 +60,7 @@ func NewTerraformer(factory terraformer.Factory, config *rest.Config, purpose, n
 }
 
 // NewTerraformerWithAuth creates a new Terraformer and initializes it with the credentials.
-func NewTerraformerWithAuth(factory terraformer.Factory, config *rest.Config, purpose, namespace, name string, credentials *alicloud.Credentials) (terraformer.Terraformer, error) {
+func NewTerraformerWithAuth(factory terraformer.Factory, config *rest.Config, purpose, namespace, name string, credentials *tencent.Credentials) (terraformer.Terraformer, error) {
 	tf, err := NewTerraformer(factory, config, purpose, namespace, name)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func NewTerraformerWithAuth(factory terraformer.Factory, config *rest.Config, pu
 
 // TerraformVariablesEnvironmentFromCredentials computes the Terraformer variables environment from the
 // given ServiceAccount.
-func TerraformVariablesEnvironmentFromCredentials(credentials *alicloud.Credentials) map[string]string {
+func TerraformVariablesEnvironmentFromCredentials(credentials *tencent.Credentials) map[string]string {
 	return map[string]string{
 		TerraformVarAccessKeyID:     credentials.AccessKeyID,
 		TerraformVarAccessKeySecret: credentials.AccessKeySecret,

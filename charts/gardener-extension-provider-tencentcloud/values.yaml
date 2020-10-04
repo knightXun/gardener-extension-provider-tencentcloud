@@ -1,5 +1,5 @@
 image:
-  repository: eu.gcr.io/gardener-project/gardener/extensions/provider-tencentcloud
+  repository: vesoft/provider-tencentcloud
   tag: latest
   pullPolicy: IfNotPresent
 

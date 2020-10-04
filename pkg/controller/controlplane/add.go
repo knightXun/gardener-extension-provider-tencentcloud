@@ -15,8 +15,8 @@
 package controlplane
 
 import (
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/imagevector"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/imagevector"
 	extensionscontroller "github.com/gardener/gardener/extensions/pkg/controller"
 	"github.com/gardener/gardener/extensions/pkg/controller/controlplane"
 	"github.com/gardener/gardener/extensions/pkg/controller/controlplane/genericactuator"
@@ -31,7 +31,7 @@ var (
 	// DefaultAddOptions are the default AddOptions for AddToManager.
 	DefaultAddOptions = AddOptions{}
 
-	logger = log.Log.WithName("alicloud-controlplane-controller")
+	logger = log.Log.WithName("tencent-controlplane-controller")
 )
 
 // AddOptions are options to apply when adding the Alicloud controlplane controller to the manager.
@@ -48,12 +48,12 @@ type AddOptions struct {
 // The opts.Reconciler is being set with a newly instantiated actuator.
 func AddToManagerWithOptions(mgr manager.Manager, opts AddOptions) error {
 	return controlplane.Add(mgr, controlplane.AddArgs{
-		Actuator: genericactuator.NewActuator(alicloud.Name, controlPlaneSecrets, nil, nil, controlPlaneChart, controlPlaneShootChart,
+		Actuator: genericactuator.NewActuator(tencent.Name, controlPlaneSecrets, nil, nil, controlPlaneChart, controlPlaneShootChart,
 			storageClassChart, nil, NewValuesProvider(logger), extensionscontroller.ChartRendererFactoryFunc(util.NewChartRendererForShoot),
 			imagevector.ImageVector(), "", opts.ShootWebhooks, mgr.GetWebhookServer().Port, logger),
 		ControllerOptions: opts.Controller,
 		Predicates:        controlplane.DefaultPredicates(opts.IgnoreOperationAnnotation),
-		Type:              alicloud.Type,
+		Type:              tencent.Type,
 	})
 }
 

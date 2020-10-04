@@ -18,13 +18,13 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	apistencentcloud "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
 	"path/filepath"
 
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
-	apisalicloud "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/helper"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/helper"
 	extensionscontroller "github.com/gardener/gardener/extensions/pkg/controller"
 	"github.com/gardener/gardener/extensions/pkg/controller/common"
 	"github.com/gardener/gardener/extensions/pkg/controller/controlplane/genericactuator"
@@ -138,11 +138,11 @@ var controlPlaneSecrets = &secrets.Secrets{
 
 var controlPlaneChart = &chart.Chart{
 	Name: "seed-controlplane",
-	Path: filepath.Join(alicloud.InternalChartsPath, "seed-controlplane"),
+	Path: filepath.Join(tencent.InternalChartsPath, "seed-controlplane"),
 	SubCharts: []*chart.Chart{
 		{
-			Name:   "alicloud-cloud-controller-manager",
-			Images: []string{alicloud.CloudControllerManagerImageName},
+			Name:   "tencent-cloud-controller-manager",
+			Images: []string{tencent.CloudControllerManagerImageName},
 			Objects: []*chart.Object{
 				{Type: &corev1.Service{}, Name: "cloud-controller-manager"},
 				{Type: &appsv1.Deployment{}, Name: "cloud-controller-manager"},
@@ -151,14 +151,14 @@ var controlPlaneChart = &chart.Chart{
 			},
 		},
 		{
-			Name: "csi-alicloud",
+			Name: "csi-tencent",
 			Images: []string{
-				alicloud.CSIAttacherImageName,
-				alicloud.CSIProvisionerImageName,
-				alicloud.CSISnapshotterImageName,
-				alicloud.CSIResizerImageName,
-				alicloud.CSIPluginImageName,
-				alicloud.CSISnapshotControllerImageName,
+				tencent.CSIAttacherImageName,
+				tencent.CSIProvisionerImageName,
+				tencent.CSISnapshotterImageName,
+				tencent.CSIResizerImageName,
+				tencent.CSIPluginImageName,
+				tencent.CSISnapshotControllerImageName,
 			},
 			Objects: []*chart.Object{
 				{Type: &appsv1.Deployment{}, Name: "csi-plugin-controller"},
@@ -170,27 +170,27 @@ var controlPlaneChart = &chart.Chart{
 
 var controlPlaneShootChart = &chart.Chart{
 	Name: "shoot-system-components",
-	Path: filepath.Join(alicloud.InternalChartsPath, "shoot-system-components"),
+	Path: filepath.Join(tencent.InternalChartsPath, "shoot-system-components"),
 	SubCharts: []*chart.Chart{
 		{
-			Name: "alicloud-cloud-controller-manager",
+			Name: "tencentcloud-cloud-controller-manager",
 			Objects: []*chart.Object{
 				{Type: &rbacv1.ClusterRole{}, Name: "system:controller:cloud-node-controller"},
 				{Type: &rbacv1.ClusterRoleBinding{}, Name: "system:controller:cloud-node-controller"},
 			},
 		},
 		{
-			Name:   "csi-alicloud",
-			Images: []string{alicloud.CSINodeDriverRegistrarImageName, alicloud.CSIPluginImageName},
+			Name:   "csi-tencentcloud",
+			Images: []string{tencent.CSINodeDriverRegistrarImageName, tencent.CSIPluginImageName},
 			Objects: []*chart.Object{
-				// csi-disk-plugin-alicloud
-				{Type: &appsv1.DaemonSet{}, Name: "csi-disk-plugin-alicloud"},
-				{Type: &corev1.Secret{}, Name: "csi-diskplugin-alicloud"},
-				{Type: &corev1.ServiceAccount{}, Name: "csi-disk-plugin-alicloud"},
-				{Type: &rbacv1.ClusterRole{}, Name: extensionsv1alpha1.SchemeGroupVersion.Group + ":psp:kube-system:csi-disk-plugin-alicloud"},
-				{Type: &rbacv1.ClusterRoleBinding{}, Name: extensionsv1alpha1.SchemeGroupVersion.Group + ":psp:csi-disk-plugin-alicloud"},
-				{Type: &policyv1beta1.PodSecurityPolicy{}, Name: extensionsv1alpha1.SchemeGroupVersion.Group + ".kube-system.csi-disk-plugin-alicloud"},
-				{Type: extensionscontroller.GetVerticalPodAutoscalerObject(), Name: "csi-diskplugin-alicloud"},
+				// csi-disk-plugin-tencentcloud
+				{Type: &appsv1.DaemonSet{}, Name: "csi-disk-plugin-tencentcloud"},
+				{Type: &corev1.Secret{}, Name: "csi-diskplugin-tencentcloud"},
+				{Type: &corev1.ServiceAccount{}, Name: "csi-disk-plugin-tencentcloud"},
+				{Type: &rbacv1.ClusterRole{}, Name: extensionsv1alpha1.SchemeGroupVersion.Group + ":psp:kube-system:csi-disk-plugin-tencentcloud"},
+				{Type: &rbacv1.ClusterRoleBinding{}, Name: extensionsv1alpha1.SchemeGroupVersion.Group + ":psp:csi-disk-plugin-tencentcloud"},
+				{Type: &policyv1beta1.PodSecurityPolicy{}, Name: extensionsv1alpha1.SchemeGroupVersion.Group + ".kube-system.csi-disk-plugin-tencentcloud"},
+				{Type: extensionscontroller.GetVerticalPodAutoscalerObject(), Name: "csi-diskplugin-tencent"},
 				// csi-attacher
 				{Type: &corev1.ServiceAccount{}, Name: "csi-attacher"},
 				{Type: &rbacv1.ClusterRole{}, Name: extensionsv1alpha1.SchemeGroupVersion.Group + ":kube-system:csi-attacher"},
@@ -204,9 +204,9 @@ var controlPlaneShootChart = &chart.Chart{
 				{Type: &rbacv1.Role{}, Name: "csi-provisioner"},
 				{Type: &rbacv1.RoleBinding{}, Name: "csi-provisioner"},
 				// csi-snapshotter
-				{Type: &apiextensionsv1beta1.CustomResourceDefinition{}, Name: alicloud.CRDVolumeSnapshotClasses},
-				{Type: &apiextensionsv1beta1.CustomResourceDefinition{}, Name: alicloud.CRDVolumeSnapshotContents},
-				{Type: &apiextensionsv1beta1.CustomResourceDefinition{}, Name: alicloud.CRDVolumeSnapshots},
+				{Type: &apiextensionsv1beta1.CustomResourceDefinition{}, Name: tencent.CRDVolumeSnapshotClasses},
+				{Type: &apiextensionsv1beta1.CustomResourceDefinition{}, Name: tencent.CRDVolumeSnapshotContents},
+				{Type: &apiextensionsv1beta1.CustomResourceDefinition{}, Name: tencent.CRDVolumeSnapshots},
 				{Type: &corev1.ServiceAccount{}, Name: "csi-snapshotter"},
 				{Type: &rbacv1.ClusterRole{}, Name: extensionsv1alpha1.SchemeGroupVersion.Group + ":kube-system:csi-snapshotter"},
 				{Type: &rbacv1.ClusterRoleBinding{}, Name: extensionsv1alpha1.SchemeGroupVersion.Group + ":csi-snapshotter"},
@@ -230,13 +230,13 @@ var controlPlaneShootChart = &chart.Chart{
 
 var storageClassChart = &chart.Chart{
 	Name: "shoot-storageclasses",
-	Path: filepath.Join(alicloud.InternalChartsPath, "shoot-storageclasses"),
+	Path: filepath.Join(tencent.InternalChartsPath, "shoot-storageclasses"),
 }
 
 // NewValuesProvider creates a new ValuesProvider for the generic actuator.
 func NewValuesProvider(logger logr.Logger) genericactuator.ValuesProvider {
 	return &valuesProvider{
-		logger: logger.WithName("alicloud-values-provider"),
+		logger: logger.WithName("tencentcloud-values-provider"),
 	}
 }
 
@@ -256,7 +256,7 @@ func (vp *valuesProvider) GetControlPlaneChartValues(
 	scaledDown bool,
 ) (map[string]interface{}, error) {
 	// Decode providerConfig
-	cpConfig := &apisalicloud.ControlPlaneConfig{}
+	cpConfig := &apistencentcloud.ControlPlaneConfig{}
 	if cp.Spec.ProviderConfig != nil {
 		if _, _, err := vp.Decoder().Decode(cp.Spec.ProviderConfig.Raw, nil, cpConfig); err != nil {
 			return nil, errors.Wrapf(err, "could not decode providerConfig of controlplane '%s'", kutil.ObjectName(cp))
@@ -278,7 +278,7 @@ func (vp *valuesProvider) GetControlPlaneShootChartValues(
 	checksums map[string]string,
 ) (map[string]interface{}, error) {
 	// Get credentials from the referenced secret
-	credentials, err := alicloud.ReadCredentialsFromSecretRef(ctx, vp.Client(), &cp.Spec.SecretRef)
+	credentials, err := tencent.ReadCredentialsFromSecretRef(ctx, vp.Client(), &cp.Spec.SecretRef)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not read credentials from secret referred by controlplane '%s'", kutil.ObjectName(cp))
 	}
@@ -288,7 +288,7 @@ func (vp *valuesProvider) GetControlPlaneShootChartValues(
 }
 
 // cloudConfig wraps the settings for the Alicloud provider.
-// See https://github.com/kubernetes/cloud-provider-alibaba-cloud/blob/master/cloud-controller-manager/alicloud.go
+// See https://github.com/kubernetes/cloud-provider-alibaba-cloud/blob/master/cloud-controller-manager/tencentcloud.go
 type cloudConfig struct {
 	Global struct {
 		KubernetesClusterTag string
@@ -309,19 +309,19 @@ func (vp *valuesProvider) getCloudControllerManagerConfigFileContent(
 	cp *extensionsv1alpha1.ControlPlane,
 ) (string, error) {
 	// Decode infrastructureProviderStatus
-	infraStatus := &apisalicloud.InfrastructureStatus{}
+	infraStatus := &apistencentcloud.InfrastructureStatus{}
 	if _, _, err := vp.Decoder().Decode(cp.Spec.InfrastructureProviderStatus.Raw, nil, infraStatus); err != nil {
 		return "", errors.Wrapf(err, "could not decode infrastructureProviderStatus of controlplane '%s'", kutil.ObjectName(cp))
 	}
 
 	// Get credentials from the referenced secret
-	credentials, err := alicloud.ReadCredentialsFromSecretRef(ctx, vp.Client(), &cp.Spec.SecretRef)
+	credentials, err := tencent.ReadCredentialsFromSecretRef(ctx, vp.Client(), &cp.Spec.SecretRef)
 	if err != nil {
 		return "", errors.Wrapf(err, "could not read credentials from secret referred by controlplane '%s'", kutil.ObjectName(cp))
 	}
 
 	// Find first vswitch with purpose "nodes"
-	vswitch, err := helper.FindVSwitchForPurpose(infraStatus.VPC.VSwitches, apisalicloud.PurposeNodes)
+	vswitch, err := helper.FindVSwitchForPurpose(infraStatus.VPC.VSwitches, apistencentcloud.PurposeNodes)
 	if err != nil {
 		return "", errors.Wrapf(err, "could not determine vswitch from infrastructureProviderStatus of controlplane '%s'", kutil.ObjectName(cp))
 	}
@@ -348,7 +348,7 @@ func (vp *valuesProvider) getCloudControllerManagerConfigFileContent(
 // getControlPlaneChartValues collects and returns the control plane chart values.
 func (vp *valuesProvider) getControlPlaneChartValues(
 	ctx context.Context,
-	cpConfig *apisalicloud.ControlPlaneConfig,
+	cpConfig *apistencentcloud.ControlPlaneConfig,
 	cp *extensionsv1alpha1.ControlPlane,
 	cluster *extensionscontroller.Cluster,
 	checksums map[string]string,
@@ -359,7 +359,7 @@ func (vp *valuesProvider) getControlPlaneChartValues(
 		return nil, errors.Wrapf(err, "could not build cloud controller config file content for controlplain '%s", kutil.ObjectName(cp))
 	}
 	values := map[string]interface{}{
-		"alicloud-cloud-controller-manager": map[string]interface{}{
+		"tencentcloud-cloud-controller-manager": map[string]interface{}{
 			"replicas":          extensionscontroller.GetControlPlaneReplicas(cluster, scaledDown, 1),
 			"clusterName":       cp.Namespace,
 			"kubernetesVersion": cluster.Shoot.Spec.Kubernetes.Version,
@@ -373,7 +373,7 @@ func (vp *valuesProvider) getControlPlaneChartValues(
 			},
 			"cloudConfig": ccmConfig,
 		},
-		"csi-alicloud": map[string]interface{}{
+		"csi-tencentcloud": map[string]interface{}{
 			"kubernetesVersion": cluster.Shoot.Spec.Kubernetes.Version,
 			"regionID":          cp.Spec.Region,
 			"replicas":          extensionscontroller.GetControlPlaneReplicas(cluster, scaledDown, 1),
@@ -397,7 +397,7 @@ func (vp *valuesProvider) getControlPlaneChartValues(
 	}
 
 	if cpConfig.CloudControllerManager != nil {
-		values["alicloud-cloud-controller-manager"].(map[string]interface{})["featureGates"] = cpConfig.CloudControllerManager.FeatureGates
+		values["tencentcloud-cloud-controller-manager"].(map[string]interface{})["featureGates"] = cpConfig.CloudControllerManager.FeatureGates
 	}
 
 	return values, nil
@@ -406,10 +406,10 @@ func (vp *valuesProvider) getControlPlaneChartValues(
 // getControlPlaneShootChartValues collects and returns the control plane shoot chart values.
 func getControlPlaneShootChartValues(
 	cluster *extensionscontroller.Cluster,
-	credentials *alicloud.Credentials,
+	credentials *tencent.Credentials,
 ) (map[string]interface{}, error) {
 	values := map[string]interface{}{
-		"csi-alicloud": map[string]interface{}{
+		"csi-tencentcloud": map[string]interface{}{
 			"credential": map[string]interface{}{
 				"accessKeyID":     base64.StdEncoding.EncodeToString([]byte(credentials.AccessKeyID)),
 				"accessKeySecret": base64.StdEncoding.EncodeToString([]byte(credentials.AccessKeySecret)),

@@ -20,9 +20,9 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
-	apisalicloud "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/helper"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	apisalicloud "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/helper"
 
 	"github.com/gardener/gardener/extensions/pkg/controller/worker"
 	genericworkeractuator "github.com/gardener/gardener/extensions/pkg/controller/worker/genericactuator"
@@ -52,7 +52,7 @@ func (w *workerDelegate) DeployMachineClasses(ctx context.Context) error {
 		}
 	}
 
-	return w.seedChartApplier.Apply(ctx, filepath.Join(alicloud.InternalChartsPath, "machineclass"), w.worker.Namespace, "machineclass", kubernetes.Values(map[string]interface{}{"machineClasses": w.machineClasses}))
+	return w.seedChartApplier.Apply(ctx, filepath.Join(tencent.InternalChartsPath, "machineclass"), w.worker.Namespace, "machineclass", kubernetes.Values(map[string]interface{}{"machineClasses": w.machineClasses}))
 }
 
 // GenerateMachineDeployments generates the configuration for the desired machine deployments.
@@ -66,7 +66,7 @@ func (w *workerDelegate) GenerateMachineDeployments(ctx context.Context) (worker
 }
 
 func (w *workerDelegate) generateMachineClassSecretData(ctx context.Context) (map[string][]byte, error) {
-	credentials, err := alicloud.ReadCredentialsFromSecretRef(ctx, w.Client(), &w.worker.Spec.SecretRef)
+	credentials, err := tencent.ReadCredentialsFromSecretRef(ctx, w.Client(), &w.worker.Spec.SecretRef)
 	if err != nil {
 		return nil, err
 	}
@@ -174,8 +174,8 @@ func (w *workerDelegate) generateMachineConfig(ctx context.Context) error {
 			machineClassSpec["labels"] = map[string]string{
 				v1beta1constants.GardenerPurpose: genericworkeractuator.GardenPurposeMachineClass,
 			}
-			machineClassSpec["secret"].(map[string]interface{})[alicloud.AccessKeyID] = string(machineClassSecretData[machinev1alpha1.AlicloudAccessKeyID])
-			machineClassSpec["secret"].(map[string]interface{})[alicloud.AccessKeySecret] = string(machineClassSecretData[machinev1alpha1.AlicloudAccessKeySecret])
+			machineClassSpec["secret"].(map[string]interface{})[tencent.AccessKeyID] = string(machineClassSecretData[machinev1alpha1.AlicloudAccessKeyID])
+			machineClassSpec["secret"].(map[string]interface{})[tencent.AccessKeySecret] = string(machineClassSecretData[machinev1alpha1.AlicloudAccessKeySecret])
 
 			machineClasses = append(machineClasses, machineClassSpec)
 		}

@@ -17,18 +17,18 @@ package app
 import (
 	"context"
 	"fmt"
+	tencentcontrolplaneexposure "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/webhook/controlplaneexposure"
 	"os"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
-	alicloudinstall "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/install"
-	alicloudcmd "github.com/gardener/gardener-extension-provider-alicloud/pkg/cmd"
-	alicloudbackupbucket "github.com/gardener/gardener-extension-provider-alicloud/pkg/controller/backupbucket"
-	alicloudbackupentry "github.com/gardener/gardener-extension-provider-alicloud/pkg/controller/backupentry"
-	alicloudcontrolplane "github.com/gardener/gardener-extension-provider-alicloud/pkg/controller/controlplane"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/controller/healthcheck"
-	alicloudinfrastructure "github.com/gardener/gardener-extension-provider-alicloud/pkg/controller/infrastructure"
-	alicloudworker "github.com/gardener/gardener-extension-provider-alicloud/pkg/controller/worker"
-	alicloudcontrolplaneexposure "github.com/gardener/gardener-extension-provider-alicloud/pkg/webhook/controlplaneexposure"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
+	tencentinstall "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/install"
+	tencentcmd "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/cmd"
+	tencentbackupbucket "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/controller/backupbucket"
+	tencentbackupentry "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/controller/backupentry"
+	tencentcontrolplane "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/controller/controlplane"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/controller/healthcheck"
+	tencentinfrastructure "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/controller/infrastructure"
+	tencentworker "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/controller/worker"
 	genericcontrolplaneactuator "github.com/gardener/gardener/extensions/pkg/controller/controlplane/genericactuator"
 
 	druidv1alpha1 "github.com/gardener/etcd-druid/api/v1alpha1"
@@ -50,12 +50,12 @@ func NewControllerManagerCommand(ctx context.Context) *cobra.Command {
 		restOpts = &controllercmd.RESTOptions{}
 		mgrOpts  = &controllercmd.ManagerOptions{
 			LeaderElection:          true,
-			LeaderElectionID:        controllercmd.LeaderElectionNameID(alicloud.Name),
+			LeaderElectionID:        controllercmd.LeaderElectionNameID(tencent.Name),
 			LeaderElectionNamespace: os.Getenv("LEADER_ELECTION_NAMESPACE"),
 			WebhookServerPort:       443,
 			WebhookCertDir:          "/tmp/gardener-extensions-cert",
 		}
-		configFileOpts = &alicloudcmd.ConfigOptions{}
+		configFileOpts = &tencentcmd.ConfigOptions{}
 
 		// options for the backupbucket controller
 		backupBucketCtrlOpts = &controllercmd.ControllerOptions{
@@ -97,9 +97,9 @@ func NewControllerManagerCommand(ctx context.Context) *cobra.Command {
 			Namespace: os.Getenv("WEBHOOK_CONFIG_NAMESPACE"),
 		}
 
-		controllerSwitches = alicloudcmd.ControllerSwitchOptions()
-		webhookSwitches    = alicloudcmd.WebhookSwitchOptions()
-		webhookOptions     = webhookcmd.NewAddToManagerOptions(alicloud.Name, webhookServerOptions, webhookSwitches)
+		controllerSwitches = tencentcmd.ControllerSwitchOptions()
+		webhookSwitches    = tencentcmd.WebhookSwitchOptions()
+		webhookOptions     = webhookcmd.NewAddToManagerOptions(tencent.Name, webhookServerOptions, webhookSwitches)
 
 		aggOption = controllercmd.NewOptionAggregator(
 			restOpts,
@@ -118,7 +118,7 @@ func NewControllerManagerCommand(ctx context.Context) *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use: fmt.Sprintf("%s-controller-manager", alicloud.Name),
+		Use: fmt.Sprintf("%s-controller-manager", tencent.Name),
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := aggOption.Complete(); err != nil {
@@ -142,7 +142,7 @@ func NewControllerManagerCommand(ctx context.Context) *cobra.Command {
 			if err := controller.AddToScheme(scheme); err != nil {
 				controllercmd.LogErrAndExit(err, "Could not update manager scheme")
 			}
-			if err := alicloudinstall.AddToScheme(scheme); err != nil {
+			if err := tencentinstall.AddToScheme(scheme); err != nil {
 				controllercmd.LogErrAndExit(err, "Could not update manager scheme")
 			}
 			if err := druidv1alpha1.AddToScheme(scheme); err != nil {
@@ -155,33 +155,33 @@ func NewControllerManagerCommand(ctx context.Context) *cobra.Command {
 			// add common meta types to schema for controller-runtime to use v1.ListOptions
 			metav1.AddToGroupVersion(scheme, machinev1alpha1.SchemeGroupVersion)
 
-			configFileOpts.Completed().ApplyMachineImageOwnerSecretRef(&alicloudinfrastructure.DefaultAddOptions.MachineImageOwnerSecretRef)
-			configFileOpts.Completed().ApplyWhitelistedImageIDs(&alicloudinfrastructure.DefaultAddOptions.WhitelistedImageIDs)
-			configFileOpts.Completed().ApplyETCDStorage(&alicloudcontrolplaneexposure.DefaultAddOptions.ETCDStorage)
-			configFileOpts.Completed().ApplyKubeAPIServer(&alicloudcontrolplaneexposure.DefaultAddOptions.KubeAPIServer)
+			configFileOpts.Completed().ApplyMachineImageOwnerSecretRef(&tencentinfrastructure.DefaultAddOptions.MachineImageOwnerSecretRef)
+			configFileOpts.Completed().ApplyWhitelistedImageIDs(&tencentinfrastructure.DefaultAddOptions.WhitelistedImageIDs)
+			configFileOpts.Completed().ApplyETCDStorage(&tencentcontrolplaneexposure.DefaultAddOptions.ETCDStorage)
+			configFileOpts.Completed().ApplyKubeAPIServer(&tencentcontrolplaneexposure.DefaultAddOptions.KubeAPIServer)
 			configFileOpts.Completed().ApplyHealthCheckConfig(&healthcheck.DefaultAddOptions.HealthCheckConfig)
 			healthCheckCtrlOpts.Completed().Apply(&healthcheck.DefaultAddOptions.Controller)
-			backupBucketCtrlOpts.Completed().Apply(&alicloudbackupbucket.DefaultAddOptions.Controller)
-			backupEntryCtrlOpts.Completed().Apply(&alicloudbackupentry.DefaultAddOptions.Controller)
-			controlPlaneCtrlOpts.Completed().Apply(&alicloudcontrolplane.DefaultAddOptions.Controller)
-			infraCtrlOpts.Completed().Apply(&alicloudinfrastructure.DefaultAddOptions.Controller)
-			reconcileOpts.Completed().Apply(&alicloudinfrastructure.DefaultAddOptions.IgnoreOperationAnnotation)
-			reconcileOpts.Completed().Apply(&alicloudcontrolplane.DefaultAddOptions.IgnoreOperationAnnotation)
-			reconcileOpts.Completed().Apply(&alicloudworker.DefaultAddOptions.IgnoreOperationAnnotation)
-			workerCtrlOpts.Completed().Apply(&alicloudworker.DefaultAddOptions.Controller)
+			backupBucketCtrlOpts.Completed().Apply(&tencentbackupbucket.DefaultAddOptions.Controller)
+			backupEntryCtrlOpts.Completed().Apply(&tencentbackupentry.DefaultAddOptions.Controller)
+			controlPlaneCtrlOpts.Completed().Apply(&tencentcontrolplane.DefaultAddOptions.Controller)
+			infraCtrlOpts.Completed().Apply(&tencentinfrastructure.DefaultAddOptions.Controller)
+			reconcileOpts.Completed().Apply(&tencentinfrastructure.DefaultAddOptions.IgnoreOperationAnnotation)
+			reconcileOpts.Completed().Apply(&tencentcontrolplane.DefaultAddOptions.IgnoreOperationAnnotation)
+			reconcileOpts.Completed().Apply(&tencentworker.DefaultAddOptions.IgnoreOperationAnnotation)
+			workerCtrlOpts.Completed().Apply(&tencentworker.DefaultAddOptions.Controller)
 
 			_, shootWebhooks, err := webhookOptions.Completed().AddToManager(mgr)
 			if err != nil {
 				controllercmd.LogErrAndExit(err, "Could not add webhooks to manager")
 			}
-			alicloudcontrolplane.DefaultAddOptions.ShootWebhooks = shootWebhooks
+			tencentcontrolplane.DefaultAddOptions.ShootWebhooks = shootWebhooks
 
 			// Update shoot webhook configuration in case the webhook server port has changed.
 			c, err := client.New(restOpts.Completed().Config, client.Options{})
 			if err != nil {
 				controllercmd.LogErrAndExit(err, "Error creating client for startup tasks")
 			}
-			if err := genericcontrolplaneactuator.ReconcileShootWebhooksForAllNamespaces(ctx, c, alicloud.Name, alicloud.Type, mgr.GetWebhookServer().Port, shootWebhooks); err != nil {
+			if err := genericcontrolplaneactuator.ReconcileShootWebhooksForAllNamespaces(ctx, c, tencent.Name, tencent.Type, mgr.GetWebhookServer().Port, shootWebhooks); err != nil {
 				controllercmd.LogErrAndExit(err, "Error ensuring shoot webhooks in all namespaces")
 			}
 

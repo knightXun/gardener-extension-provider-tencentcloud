@@ -17,9 +17,9 @@ package worker
 import (
 	"context"
 
-	api "github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/helper"
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/alicloud/v1alpha1"
+	api "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/helper"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/v1alpha1"
 	"github.com/gardener/gardener/extensions/pkg/controller/worker"
 	kutil "github.com/gardener/gardener/pkg/utils/kubernetes"
 

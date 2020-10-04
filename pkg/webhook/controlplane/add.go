@@ -15,7 +15,7 @@
 package controlplane
 
 import (
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent"
 	extensionswebhook "github.com/gardener/gardener/extensions/pkg/webhook"
 	"github.com/gardener/gardener/extensions/pkg/webhook/controlplane"
 	"github.com/gardener/gardener/extensions/pkg/webhook/controlplane/genericmutator"
@@ -35,7 +35,7 @@ func AddToManager(mgr manager.Manager) (*extensionswebhook.Webhook, error) {
 	fciCodec := controlplane.NewFileContentInlineCodec()
 	return controlplane.New(mgr, controlplane.Args{
 		Kind:     controlplane.KindShoot,
-		Provider: alicloud.Type,
+		Provider: tencent.Type,
 		Types:    []runtime.Object{&appsv1.Deployment{}, &extensionsv1alpha1.OperatingSystemConfig{}},
 		Mutator: genericmutator.NewMutator(NewEnsurer(logger), controlplane.NewUnitSerializer(),
 			controlplane.NewKubeletConfigCodec(fciCodec), fciCodec, logger),

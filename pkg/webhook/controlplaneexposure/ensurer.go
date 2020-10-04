@@ -19,8 +19,8 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/gardener/gardener-extension-provider-alicloud/pkg/apis/config"
-	webhookutils "github.com/gardener/gardener-extension-provider-alicloud/pkg/webhook/utils"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/config"
+	webhookutils "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/webhook/utils"
 	"github.com/gardener/gardener/extensions/pkg/controller"
 	extensionswebhook "github.com/gardener/gardener/extensions/pkg/webhook"
 	"github.com/gardener/gardener/extensions/pkg/webhook/controlplane/genericmutator"

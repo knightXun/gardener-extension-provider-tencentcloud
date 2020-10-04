@@ -18,8 +18,8 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/gardener/gardener-extension-provider-tencent/pkg/apis/tencentcloud"
-	tencentvalidation "github.com/gardener/gardener-extension-provider-tencent/pkg/apis/tencentcloud/validation"
+	"github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud"
+	tencentvalidation "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/apis/tencentcloud/validation"
 
 	"github.com/gardener/gardener/pkg/apis/core"
 	"k8s.io/apimachinery/pkg/util/validation/field"

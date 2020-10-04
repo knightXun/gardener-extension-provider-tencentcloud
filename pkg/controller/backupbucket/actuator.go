@@ -16,8 +16,7 @@ package backupbucket
 
 import (
 	"context"
-
-	alicloudclient "github.com/gardener/gardener-extension-provider-alicloud/pkg/alicloud/client"
+	tencentcloudclient "github.com/gardener/gardener-extension-provider-tencentcloud/pkg/tencent/client"
 	"github.com/gardener/gardener/extensions/pkg/controller/backupbucket"
 
 	extensionsv1alpha1 "github.com/gardener/gardener/pkg/apis/extensions/v1alpha1"
@@ -44,7 +43,7 @@ func (a *actuator) InjectClient(client client.Client) error {
 }
 
 func (a *actuator) Reconcile(ctx context.Context, bb *extensionsv1alpha1.BackupBucket) error {
-	alicloudClient, err := alicloudclient.NewClientFactory().NewStorageClientFromSecretRef(ctx, a.client, &bb.Spec.SecretRef, bb.Spec.Region)
+	alicloudClient, err := tencentcloudclient.NewClientFactory().NewStorageClientFromSecretRef(ctx, a.client, &bb.Spec.SecretRef, bb.Spec.Region)
 	if err != nil {
 		return err
 	}
@@ -53,7 +52,7 @@ func (a *actuator) Reconcile(ctx context.Context, bb *extensionsv1alpha1.BackupB
 }
 
 func (a *actuator) Delete(ctx context.Context, bb *extensionsv1alpha1.BackupBucket) error {
-	alicloudClient, err := alicloudclient.NewClientFactory().NewStorageClientFromSecretRef(ctx, a.client, &bb.Spec.SecretRef, bb.Spec.Region)
+	alicloudClient, err := tencentcloudclient.NewClientFactory().NewStorageClientFromSecretRef(ctx, a.client, &bb.Spec.SecretRef, bb.Spec.Region)
 	if err != nil {
 		return err
 	}
